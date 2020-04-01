@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 
 networks:
   front-tier:
@@ -8,14 +8,21 @@ networks:
 
 services:
   janus-gateway:
-    image: mcroth/docker-janus:latest 
+    image: janus:test
     container_name: janus-gateway
     volumes:
-      - ./janus/etc/janus/:/opt/janus/etc/janus/
-      - ./janus/janus.log:/var/log/janus.log
+      - ./volumes/janus/etc/janus/:/opt/janus/etc/janus/
+      - ./volumes/janus/janus.log:/var/log/janus.log
     ports:
-      - 8088:8088
+      - 7088:7088
       - 8188:8188
-    networks:
-      - back-tier
-      - front-tier
+      - 8088:8088
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./volumes/nginx/conf/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./volumes/nginx/www/html:/usr/share/nginx/html:ro
+      - ./volumes/nginx/certs/server.crt:/usr/local/nginx/server.crt
+      - ./volumes/nginx/certs/server.key:/usr/local/nginx/server.key
+    ports:
+      - 8089:8089

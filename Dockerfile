@@ -4,7 +4,7 @@
 ############################################################
 
 # set base image debian jessie
-FROM debian:jessie
+FROM debian:buster-slim
 
 # file maintainer author
 MAINTAINER brendan jocson <brendan@jocson.eu>
@@ -23,7 +23,7 @@ ARG JANUS_WITH_WEBSOCKETS="1"
 ARG JANUS_WITH_MQTT="0"
 ARG JANUS_WITH_PFUNIX="1"
 ARG JANUS_WITH_RABBITMQ="0"
-# https://goo.gl/dmbvc1 
+# https://goo.gl/dmbvc1
 ARG JANUS_WITH_FREESWITCH_PATCH="0"
 ARG JANUS_CONFIG_DEPS="\
     --prefix=/opt/janus \
@@ -31,16 +31,22 @@ ARG JANUS_CONFIG_DEPS="\
 ARG JANUS_CONFIG_OPTIONS="\
     "
 ARG JANUS_BUILD_DEPS_DEV="\
-    libcurl4-openssl-dev \
-    libjansson-dev \
-    libnice-dev \
-    libssl-dev \
-    libsofia-sip-ua-dev \
-    libglib2.0-dev \
-    libopus-dev \
-    libogg-dev \
-    pkg-config \
-    "
+  libmicrohttpd-dev \
+  libjansson-dev \
+	libssl-dev \
+	libsofia-sip-ua-dev \
+	libglib2.0-dev \
+	libopus-dev \
+	libogg-dev \
+	libcurl4-openssl-dev \
+	liblua5.3-dev \
+	libconfig-dev \
+	pkg-config \
+	gengetopt \
+	libtool \
+	automake \
+  gtk-doc-tools \
+	"
 ARG JANUS_BUILD_DEPS_EXT="\
     libavutil-dev \
     libavcodec-dev \
@@ -81,10 +87,16 @@ RUN \
     && /usr/sbin/groupadd -r janus && /usr/sbin/useradd -r -g janus janus \
     && DEBIAN_FRONTEND=noninteractive apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get -y --no-install-recommends install $JANUS_BUILD_DEPS_DEV ${JANUS_BUILD_DEPS_EXT} \
+# build libnice
+    && git clone https://gitlab.freedesktop.org/libnice/libnice  \
+    && cd libnice \
+    && ./autogen.sh \
+    && ./configure --prefix=/usr  \
+    && make && make install \
 # build libsrtp
-    && curl -fSL https://github.com/cisco/libsrtp/archive/v2.0.0.tar.gz -o ${BUILD_SRC}/v2.0.0.tar.gz \
-    && tar xzf ${BUILD_SRC}/v2.0.0.tar.gz -C ${BUILD_SRC} \
-    && cd ${BUILD_SRC}/libsrtp-2.0.0 \
+    && curl -fSL https://github.com/cisco/libsrtp/archive/v2.2.0.tar.gz -o ${BUILD_SRC}/v2.2.0.tar.gz \
+    && tar xzf ${BUILD_SRC}/v2.2.0.tar.gz -C ${BUILD_SRC} \
+    && cd ${BUILD_SRC}/libsrtp-2.2.0 \
     && ./configure --prefix=/usr --enable-openssl \
     && make shared_library \
     && make install \
