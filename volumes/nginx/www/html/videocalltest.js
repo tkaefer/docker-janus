@@ -42,7 +42,7 @@
 // in the presented order. The first working server will be used for
 // the whole session.
 //
-var server = ["wss://" + window.location.hostname + ":8089/ws", "https://" + window.location.hostname + ":8089/janus"];
+var server = ["wss://" + window.location.hostname + "/ws", "https://" + window.location.hostname + "/janus"];
 // if(window.location.protocol === 'http:')
 //	server = "http://" + window.location.hostname + ":8088/janus";
 // else
